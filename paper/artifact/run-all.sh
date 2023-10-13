@@ -68,13 +68,6 @@ python3 scripts/copy_results.py -s "$PWD/runtime" -d "$PWD/results/" -r 0
 
 cp -r scripts/ results/
 
-docker run -it -v $PWD/results/:/results --name validate_twostage $IMAGE_NAME bash
-
-python3 results/scripts/analysis.py -b /results -c results/scripts/asan.queue.json -r 0 -d /results/log/0/
-python3 results/scripts/analysis.py -b /results -c results/scripts/asan.crash.json -r 0 -d /results/log/0/
-
-python3 results/scripts/print_result.py -b /results/log/ -r 0 -t all
-
 echo "two-stage done"
 
 popd
@@ -159,13 +152,6 @@ python3 scripts/copy_results.py -s "$PWD/runtime" -d "$PWD/results/" -r 0
 
 cp -r scripts/ results/
 
-docker run -it -v $PWD/results/:/results --name validate_twostage $IMAGE_NAME bash
-
-python3 results/scripts/analysis.py -b /results -c results/scripts/asan.queue.json -r 0 -d /results/log/0/
-python3 results/scripts/analysis.py -b /results -c results/scripts/asan.crash.json -r 0 -d /results/log/0/
-
-python3 results/scripts/print_result.py -b /results/log/ -r 0 -t all
-
 echo "asan done"
 
 popd
@@ -235,13 +221,6 @@ python3 scripts/copy_results.py -s "$PWD/runtime" -d "$PWD/results/" -r 0
 
 cp -r scripts/ results/
 
-docker run -it -v $PWD/results/:/results --name validate_twostage $IMAGE_NAME bash
-
-python3 results/scripts/analysis.py -b /results -c results/scripts/asan.queue.json -r 0 -d /results/log/0/
-python3 results/scripts/analysis.py -b /results -c results/scripts/asan.crash.json -r 0 -d /results/log/0/
-
-python3 results/scripts/print_result.py -b /results/log/ -r 0 -t all
-
 echo "ubsan done"
 
 popd
@@ -291,12 +270,6 @@ mkdir results/
 python3 scripts/copy_results.py -s "$PWD/runtime" -d "$PWD/results/" -r 0
 
 cp -r scripts/ results/
-
-docker run -it -v $PWD/results/:/results --name validate_twostage $IMAGE_NAME bash
-
-python3 results/scripts/analysis.py -b /results -c results/scripts/ubsan.queue.json -r 0 -d /results/log/0/
-
-python3 results/scripts/print_result.py -b /results/log/ -r 0 -t all
 
 echo "qsym done"
 
