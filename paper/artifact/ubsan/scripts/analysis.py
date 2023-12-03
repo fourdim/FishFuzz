@@ -202,7 +202,7 @@ class AnalysisOneResults:
                 self.__map_path, self.binary_path, _cur_args) 
     try:
       p = subprocess.run(all_cmd.split(' '), stdin=_stdin_fd, 
-          stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout = 15)
+          stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout = 2)
       return p.stderr
     except:
       print ('[WARN] while validating, seed %s timeout, skip' % (_sname))
