@@ -11,8 +11,10 @@ from datetime import datetime
 import re
 import argparse
 
+import ray
 
 
+@ray.remote
 class AnalysisOneResults:
   """"""
   # -----------------
@@ -220,17 +222,19 @@ class AnalysisOneResults:
     else:
       _stdin_fd = subprocess.PIPE
     _cur_args = self.args.replace('@@', '%s/seed.demo' % (self.out_dir))
+
     all_cmd = '%s %s' %(self.binary_path, _cur_args)
     asan_env = os.environ
     # can also use location if binary is compiled with '-g'
     asan_env["ASAN_OPTIONS"] = 'stack_trace_format="[frame=%n, function=%f]"' #, location=%S
     try:
-      p = subprocess.run(all_cmd.split(' '), stdin=_stdin_fd, 
-          stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout = 15, env = asan_env)
+      p = subprocess.run(all_cmd.split(' '), stdin=_stdin_fd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout = 180, env = asan_env)
       return p.stderr
-    except:
+    except subprocess.TimeoutExpired:
       print ('[WARN] while validating, seed %s timeout, skip' % (_sname))
       return ''
+    except KeyboardInterrupt:
+      exit(-1)
   # --------------------------------------------------------------------------------------------
   def update_seed_list(self, fuzzer, corpus_dir):
     self.__seed_list[fuzzer] = []
@@ -291,6 +295,7 @@ class AnalysisOneResults:
 
 # --------------------------------------------------------------------------------------------
 def load_config_and_exec(base, json_path, round):
+  result_ref = []
   with open(json_path) as f:
     conf = json.load(f)
   for prog in conf["prog_driver"]:
@@ -303,8 +308,9 @@ def load_config_and_exec(base, json_path, round):
     is_crash      = conf["is_crash"]
     # --------------------
     print ('---------------------------------[%s]---------------------------------' % (bin_name))
-    Worker = AnalysisOneResults(prog_bin_dir, prog_args, base, is_asan, is_crash, round)
-    Worker.start_all()
+    Worker = AnalysisOneResults.remote(prog_bin_dir, prog_args, base, is_asan, is_crash, round)
+    result_ref.append(Worker.start_all.remote())
+  ray.get(result_ref)
 
 # --------------------------------------------------------------------------------------------
 def copy_results(round, results_dst_dir = ''):
@@ -349,6 +355,7 @@ def main_once():
 
 # --------------------------------------------------------------------------------------------
 if __name__ == "__main__":
+  ray.init(_temp_dir = '/results/ray')
   main()
 
 

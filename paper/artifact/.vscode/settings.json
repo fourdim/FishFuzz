@@ -1,0 +1,6 @@
+{
+    "files.watcherExclude": {
+        "**/results/**": true,
+        "**/runtime/**": true
+    }
+}
